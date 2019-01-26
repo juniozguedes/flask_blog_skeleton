@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+{% for post in posts %}
+	{{post.slug}}
+	<p>{{post.title}} </p> 
+	<p>{{post.content}}, {{post.entrada}}</p>
+{% endfor %}
+{% endblock %}
