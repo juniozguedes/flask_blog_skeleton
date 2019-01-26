@@ -22,14 +22,15 @@ def blog():
         post = Tweets(title=title, content=content, slug=slug)
         db.session.add(post)
         db.session.commit()
-    if request.method == 'POST':
+    if request.method == 'GET':
         posts = Tweets.query.all()      
         return render_template('blog.html', posts = posts)
 
 
-@app.route('/blog/<int:id>', methods=['GET', 'DELETE'])
-def show(id):
-    tweet = Tweets.query.filter_by(id=id).first()
+@app.route('/blog/<string:slug>', methods=['GET', 'DELETE'])
+def show(slug):
+    post = Tweets.query.filter_by(slug=slug).first()
+    return render_template('show.html', post=post)
     if request.method == 'DELETE':
         db.session.delete(tweet)
         db.session.commit()
@@ -60,7 +61,7 @@ def logmein():
     #    if is_safe_url(next):
     return redirect(url_for('timeline'))
 
-@app.route('/twitter/logout')
+@app.route('/blog/logout')
 @login_required
 def logout():
     logout_user()
@@ -70,7 +71,7 @@ def logout():
 def registration():
     return render_template('register.html')
 
-@app.route('/twitter/register', methods=['POST'])
+@app.route('/blog/register', methods=['POST'])
 def register():
     login = request.form['login']
     password = generate_password_hash(request.form['password'])

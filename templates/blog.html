@@ -2,7 +2,7 @@
 {% block content %}
 {% for post in posts %}
 	{{post.slug}}
-	<p>{{post.title}} </p> 
+	<p><a href={{url_for('show', slug=post.slug)}}>{{post.title}}</a></p> 
 	<p>{{post.content}}, {{post.entrada}}</p>
 {% endfor %}
 {% endblock %}
