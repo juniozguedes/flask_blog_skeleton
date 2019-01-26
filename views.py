@@ -11,15 +11,19 @@ from app import db
 
 @app.route('/')
 def root():
-    return redirect(url_for('timeline'))
+    return redirect(url_for('blog'))
 
-@app.route('/blog', methods=['GET'])
+@app.route('/blog', methods=['POST', 'GET'])
 def blog():
-    if request.method == 'GET':
-        posts = Tweets.query.all()
-        #uid = current_user.id
-        #user = User.query.filter_by(id=uid).first()
-        #posts = Tweets.query.filter().order_by(Tweets.id.desc()).all()        
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form ['content']
+        slug = title.replace(" ", "-")
+        post = Tweets(title=title, content=content, slug=slug)
+        db.session.add(post)
+        db.session.commit()
+    if request.method == 'POST':
+        posts = Tweets.query.all()      
         return render_template('blog.html', posts = posts)
 
 
