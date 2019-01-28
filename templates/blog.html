@@ -1,8 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
-{% for post in posts %}
-	{{post.slug}}
-	<p><a href={{url_for('show', slug=post.slug)}}>{{post.title}}</a></p> 
-	<p>{{post.content}}, {{post.entrada}}</p>
-{% endfor %}
+	{% for post in posts %}
+		{{post.slug}}
+		<p><a href={{url_for('show', slug=post.slug)}}>{{post.title}}</a></p> 
+		<p>{{post.content}}, {{post.entrada}}</p>
+		{% if current_user.admin == True %}
+			<a href="{{url_for('edit', slug = post.slug)}}">Edit</a>	
+			<form method="POST" action="{{url_for('show', slug = post.slug)}}?_method=DELETE">
+				<button type="submit" class="btn-sm btn btn-danger">del</button>
+			</form>
+		{% endif %}
+	{% endfor %}
+	{% if current_user.admin == True %}
+		<p>ESTA LOGADO COMO ADMIN</p>	
+		<a href="{{url_for('logout')}}">Logout</a>
+	{% endif %}
 {% endblock %}
