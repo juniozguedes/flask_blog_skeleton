@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
+ 
 <div class="container-fluid">
-		<form action="{{url_for('blog')}}" method="POST">
+		<form  enctype="multipart/form-data" action="{{url_for('blog')}}" method="POST">
 			<p><input placeholder="Titulo" type="text" name="title"></p>
 			<p><input placeholder="Descricao" type="text" name="content"></p>
-			<input class="container" type="submit">
+			<input type="file" name="file"> 
+			<input class="container" type="submit" value="upload">
 		</form>
 		{% with messages = get_flashed_messages() %}
 		{% if messages %}

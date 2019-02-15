@@ -1,17 +1,28 @@
+import os
 from app import app
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask import Flask, request, redirect, url_for, render_template, session
-from models import Tweets, User
-#from urllib.parse import urlparse, urljoin
+from models import Tweets, User, allowed_file
 from datetime import datetime
 import itertools
 import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from app import db
+
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+UPLOAD_FOLDER = os.path.basename('uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/')
 def root():
     return redirect(url_for('blog'))
+
+#CREATE
+@app.route('/blog/create')
+@login_required
+def create():
+        return render_template('create.html')
 
 @app.route('/blog', methods=['POST', 'GET'])
 def blog():
@@ -19,32 +30,50 @@ def blog():
         title = request.form['title']
         content = request.form ['content']
         slug = title.replace(" ", "-")
-        post = Tweets(title=title, content=content, slug=slug)
-        db.session.add(post)
-        db.session.commit()
-        return redirect(url_for('blog'))
+        #post = Tweets(title=title, content=content, slug=slug, filename=filename)
+        if 'file' not in request.files:
+            print('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit a empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            print(filename)
+            post = Tweets(title=title, content=content, slug=slug, uniquekey=filename)
+            db.session.add(post)
+            db.session.commit()
+            return redirect(url_for('blog', filename=filename))
     if request.method == 'GET':
         posts = Tweets.query.all()      
         return render_template('blog.html', posts = posts)
 
-@app.route('/blog/<string:slug>', methods=["GET", "PATCH", "DELETE"])
+@app.route('/blog/<string:slug>', methods=["GET", "POST"])
 def show(slug):
-    post = Tweets.query.filter_by(slug=slug).first()
-    if request.method == 'DELETE':
-        db.session.delete(post)
-        db.session.commit()
-        return redirect(url_for('blog'))
-    if request.method == 'PATCH':
+    post = Tweets.query.filter_by(slug=slug).first()    
+    if request.method == 'POST':
         post.title = request.form['title']
-        post.content = request.form['content']            
+        post.content = request.form['content']
+        title = request.form['title']
+        slug = title.replace(" ", "-")
+        post.slug = slug                
         db.session.add(post)
         db.session.commit()
         return render_template('show.html', post=post)    
     return render_template('show.html', post=post)
 
-@app.route('/blog/create')
-def create():
-        return render_template('create.html')
+#DELETE
+@app.route('/blog/<int:id>', methods=["GET"])
+def d(id):
+    post = Tweets.query.filter_by(id=id).first() 
+    if request.method == 'GET':
+        db.session.delete(post)
+        db.session.commit()
+        return redirect(url_for('blog'))
 
 @app.route('/blog/<string:slug>/adminctrl')
 @login_required

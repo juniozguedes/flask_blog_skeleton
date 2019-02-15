@@ -4,6 +4,7 @@ from app import db
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import ARRAY
 import random
+from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate
 
@@ -13,6 +14,8 @@ login_manager.login_view = 'login' #if unauthorized, redirects to login
 login_manager.login_message = 'You need to login!'
 
 migrate = Migrate(app, db)
+
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -34,7 +37,11 @@ class Tweets(db.Model):
     slug = db.Column(db.Text)
     content = db.Column(db.Text)
     entrada = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
-    uniquekey = db.Column(db.Text, unique=True)
+    uniquekey = db.Column(db.Text, unique=True) 
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @login_manager.user_loader
 def load_user(user_id):
