@@ -4,6 +4,7 @@
 		{{post.slug}}
 		<p><a href={{url_for('show', slug=post.slug)}}>{{post.title}}</a></p> 
 		<p>{{post.content}}, {{post.entrada}}</p>
+		<img src="../uploads/{{post.uniquekey}}">
 		{% if current_user.admin == True %}
 			<a href="{{url_for('edit', slug = post.slug)}}">Edit</a>	
 			<form method="GET" action="{{url_for('d', id=post.id)}}">
