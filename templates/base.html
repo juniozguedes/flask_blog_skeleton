@@ -8,7 +8,14 @@
 		{% block content %}
 		{% endblock %}
 
-		<!-- Optional JavaScript -->
+		<!--Optional JavaScript-->
+		<script src="{{url_for('static', filename='js/test.js')}}"></script>
 
+		<!-- MomentJs -->
+		<script src="{{url_for('static', filename='js/moment.js')}}"></script>
+
+		<script>
+    		moment().format();
+		</script>	
 	</body>
 </html>
