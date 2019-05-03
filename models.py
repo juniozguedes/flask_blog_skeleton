@@ -25,6 +25,7 @@ class User(UserMixin, db.Model):
     tweets = db.relationship('Tweets', backref='user', lazy=True)
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     admin = db.Column(db.Boolean, nullable=False, default=False)
+    master = db.Column(db.Boolean, nullable=True, default=False)
 
 class Tweets(db.Model):
 
@@ -36,6 +37,8 @@ class Tweets(db.Model):
     title = db.Column(db.Text)
     slug = db.Column(db.Text)
     content = db.Column(db.Text)
+    short = db.Column(db.Text)
+    description = db.Column(db.Text)
     entrada = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     uniquekey = db.Column(db.Text, unique=True) 
 

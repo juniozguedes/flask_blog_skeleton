@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
 	
-	<!--{% if current_user.admin == True %}
+	{% if current_user.admin == True %}
 		<p>ESTA LOGADO COMO ADMIN</p>	
 		<a href="{{url_for('logout')}}">Logout</a>
-	{% endif %}-->
+	{% endif %}
 
 	 <!-- Page Content -->
   <div class="container">
@@ -12,34 +12,20 @@
     <div class="row">
 
       <!-- Blog Entries Column -->
-      <div class="col-md-8">
+      <div class="col-md-7">
 
         <h1 class="my-4">Blog
           <small>Todas as postagens</small>
         </h1>
-    <!--
-	{% for post in posts %}
-		<p><a href={{url_for('show', slug=post.slug, filename=post.uniquekey)}}>{{post.title}}</a></p> 
-		<p>{{post.content}}</p> 
-		<p>{{post.entrada}}</p>
-		<img src={{url_for('static', filename=post.uniquekey)}}>
-		{% if current_user.admin == True %}
-			<a href="{{url_for('edit', slug = post.slug)}}">Edit</a>	
-			<form method="GET" action="{{url_for('d', id=post.id)}}">
-				<button type="submit">del</button>
-			</form>
-		{% endif %}
-	{% endfor %}
-	-->
 
 	{% for post in posts %}
         <!-- Blog Post -->
         <div class="card mb-4">
-          <img class="card-img-top" src="{{url_for('static', filename=post.uniquekey)}}" alt="Card image cap">
+          <img class="card-img-top" style="height: 50vh" src="{{url_for('static', filename=post.uniquekey)}}" alt="Card image cap">
           <div class="card-body">
             <h2 class="card-title"><a href="{{url_for('show', slug=post.slug, filename=post.uniquekey)}}">{{post.title}}</a></h2>
-            <p class="card-text">{{post.content}}</p>
-            <a href="#" class="btn btn-primary">Read More &rarr;</a>
+            <p class="card-text">{{post.short}}</p>
+            <a href="{{url_for('show', slug=post.slug, filename=post.uniquekey)}}>{{post.title}}" class="btn btn-primary">Read More &rarr;</a>
           </div>
           <div class="card-footer text-muted">
             {{post.entrada}}

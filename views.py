@@ -29,6 +29,7 @@ def blog():
     if request.method == 'POST':
         title = request.form['title']
         content = request.form ['content']
+        short = content[0:50]+'(...)'
         slug = title.replace(" ", "-")
         #post = Tweets(title=title, content=content, slug=slug, filename=filename)
         if 'file' not in request.files:
@@ -43,8 +44,7 @@ def blog():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            print(filename)
-            post = Tweets(title=title, content=content, slug=slug, uniquekey=filename)
+            post = Tweets(title=title, content=content, short=short, slug=(slug.lower()), uniquekey=filename)
             db.session.add(post)
             db.session.commit()
             return redirect(url_for('blog', filename=filename))
@@ -52,19 +52,20 @@ def blog():
         posts = Tweets.query.all()      
         return render_template('blog.html', posts = posts)
 
-@app.route('/blog/<string:slug>', methods=["GET", "POST"])
+@app.route('/blog/<string:slug>', methods=["GET"])
 def show(slug):
-    post = Tweets.query.filter_by(slug=slug).first()    
-    if request.method == 'POST':
-        post.title = request.form['title']
-        post.content = request.form['content']
-        title = request.form['title']
-        slug = title.replace(" ", "-")
-        post.slug = slug                
-        db.session.add(post)
-        db.session.commit()
-        return render_template('show.html', post=post)    
-    return render_template('show.html', post=post)
+    my_post = Tweets.query.filter_by(slug=slug).first()  
+    #if request.method == 'POST':
+        #post.title = request.form['title']
+        #post.content = request.form['content']
+        #title = request.form['title']
+        #slug = title.replace(" ", "-")
+        #post.slug = slug                
+        #db.session.add(post)
+        #db.session.commit()
+        #return render_template('show.html', post=post)
+        #SO FAR WORKING WITHOUT THESE GUYS UP HERE, ERASE IT LATER!   
+    return render_template('show.html', post=my_post)
 
 #DELETE
 @app.route('/blog/<int:id>', methods=["GET"])
@@ -83,6 +84,8 @@ def edit(slug):
 
 @app.route('/blog/login')
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('blog'))
     return render_template('login.html')
 
 @app.route('/logmein', methods=['POST'])
@@ -106,14 +109,18 @@ def logout():
 
 @app.route('/blog/register')
 def registration():
-    return render_template('register.html')
+    if current_user.is_authenticated:
+        u = User.query.filter_by(username='master').first()
+        if u.master == True:
+            return render_template('register.html')
+    return redirect(url_for('blog'))
 
 @app.route('/blog/register', methods=['POST'])
 def register():
     login = request.form['login']
     password = generate_password_hash(request.form['password'])
     nickname = request.form['nickname']
-    u = User(username=login,password=password, nickname=nickname)
+    u = User(username=login,password=password, nickname=nickname, admin=True)
     db.session.add(u)
     db.session.commit()
     return redirect(url_for('login'))
